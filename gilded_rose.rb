@@ -1,55 +1,61 @@
 class GildedRose
+  QUALITY = {
+      undegradable: 0,
+      highest: 50
+  }
+
+  SELL_IN = {
+      zero_term: 0,
+      twice_growth: 10,
+      thrice_growth: 5
+  }
+
+  STEP = 1
+
   def initialize(items)
     @items = items
   end
 
   def update_quality()
     @items.each do |item|
-      if item.name != 'Aged Brie' and item.name != 'Backstage passes to a TAFKAL80ETC concert'
-        if item.quality > 0
-          if item.name != 'Sulfuras, Hand of Ragnaros'
-            item.quality = item.quality - 1
-          end
-        end
-      else
-        if item.quality < 50
-          item.quality = item.quality + 1
-          if item.name == 'Backstage passes to a TAFKAL80ETC concert'
-            if item.sell_in < 11
-              if item.quality < 50
-                item.quality = item.quality + 1
-              end
-            end
-            if item.sell_in < 6
-              if item.quality < 50
-                item.quality = item.quality + 1
-              end
+      unless item.name == 'Sulfuras, Hand of Ragnaros'
+        if item.name == 'Aged Brie'
+          if item.quality < QUALITY[:highest]
+            item.quality += STEP
+            if item.sell_in <= SELL_IN[:zero_term]
+              item.quality += STEP
             end
           end
-        end
-      end
-      if item.name != 'Sulfuras, Hand of Ragnaros'
-        item.sell_in = item.sell_in - 1
-      end
-      if item.sell_in < 0
-        if item.name != 'Aged Brie'
-          if item.name != 'Backstage passes to a TAFKAL80ETC concert'
-            if item.quality > 0
-              if item.name != 'Sulfuras, Hand of Ragnaros'
-                item.quality = item.quality - 1
-              end
+        elsif item.name == 'Backstage passes to a TAFKAL80ETC concert'
+          item.quality += STEP
+          if item.sell_in <= SELL_IN[:twice_growth]
+            if item.quality < QUALITY[:highest]
+              item.quality += STEP
             end
-          else
-            item.quality = item.quality - item.quality
           end
-        else
-          if item.quality < 50
-            item.quality = item.quality + 1
+          if item.sell_in <= SELL_IN[:thrice_growth]
+            if item.quality < QUALITY[:highest]
+              item.quality += STEP
+            end
+          end
+          if item.sell_in <= SELL_IN[:zero_term]
+            item.quality = QUALITY[:undegradable]
+          end
+        elsif item.quality > QUALITY[:undegradable] && item.quality < QUALITY[:highest]
+          decrease_amount = item.name == 'Conjured' ? STEP*2 : STEP
+          item.quality -= decrease_amount
+          if item.sell_in < SELL_IN[:zero_term]
+            if item.quality > QUALITY[:undegradable]
+              item.quality -= decrease_amount
+            end
           end
         end
+
+        item.sell_in -= STEP
       end
     end
   end
+
 end
 
 class Item
