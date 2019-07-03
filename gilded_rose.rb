@@ -18,15 +18,16 @@ class GildedRose
 
   def update_quality()
     @items.each do |item|
-      unless item.name == 'Sulfuras, Hand of Ragnaros'
-        if item.name == 'Aged Brie'
+      item_type = map_item(item)
+      unless item_type == :legendary
+        if item_type == :cheese
           if item.quality < QUALITY[:highest]
             item.quality += STEP
             if item.sell_in <= SELL_IN[:zero_term]
               item.quality += STEP
             end
           end
-        elsif item.name == 'Backstage passes to a TAFKAL80ETC concert'
+        elsif item_type == :ticket
           item.quality += STEP
           if item.sell_in <= SELL_IN[:twice_growth]
             if item.quality < QUALITY[:highest]
@@ -42,7 +43,7 @@ class GildedRose
             item.quality = QUALITY[:undegradable]
           end
         elsif item.quality > QUALITY[:undegradable] && item.quality < QUALITY[:highest]
-          decrease_amount = item.name == 'Conjured' ? STEP*2 : STEP
+          decrease_amount = item_type == :magic ? STEP*2 : STEP
           item.quality -= decrease_amount
           if item.sell_in < SELL_IN[:zero_term]
             if item.quality > QUALITY[:undegradable]
@@ -53,6 +54,20 @@ class GildedRose
 
         item.sell_in -= STEP
       end
+    end
+  end
+
+  def map_item(item)
+    if item.name == 'Sulfuras, Hand of Ragnaros'
+      :legendary
+    elsif item.name == 'Aged Brie'
+      :cheese
+    elsif item.name == 'Backstage passes to a TAFKAL80ETC concert'
+      :ticket
+    elsif item.name == 'Conjured'
+      :magic
+    else
+      :common_item
     end
   end
 
