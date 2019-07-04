@@ -98,7 +98,7 @@ describe GildedRose do
 
     # Conjured items case ---------------------------------------------------------------------
     it 'decreases quality of Conjured twice faster before sellin' do
-      items = [Item.new('Conjured', 5, 40),
+      items = [Item.new('Conjured Mana Cake', 5, 40),
                Item.new('Bar', 3, 10)]
       GildedRose.new(items).update_quality()
       expect(items[0].quality).to eq 38
@@ -106,7 +106,7 @@ describe GildedRose do
     end
 
     it 'decreases quality of Conjured twice faster after sellin' do
-      items = [Item.new('Conjured', -5, 40),
+      items = [Item.new('Conjured Mana Cake', -5, 40),
                Item.new('Bar', -3, 10)]
       GildedRose.new(items).update_quality()
       expect(items[0].quality).to eq 36

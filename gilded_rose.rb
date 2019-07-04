@@ -43,7 +43,7 @@ class GildedRose
             item.quality = QUALITY[:undegradable]
           end
         elsif item.quality > QUALITY[:undegradable] && item.quality < QUALITY[:highest]
-          decrease_amount = item_type == :magic ? STEP*2 : STEP
+          decrease_amount = item_type == :magic ? STEP+STEP : STEP
           item.quality -= decrease_amount
           if item.sell_in < SELL_IN[:zero_term]
             if item.quality > QUALITY[:undegradable]
@@ -64,7 +64,7 @@ class GildedRose
       :cheese
     elsif item.name == 'Backstage passes to a TAFKAL80ETC concert'
       :ticket
-    elsif item.name == 'Conjured'
+    elsif item.name == 'Conjured Mana Cake'
       :magic
     else
       :common_item
