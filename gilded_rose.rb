@@ -1,16 +1,4 @@
 class GildedRose
-  QUALITY = {
-      undegradable: 0,
-      highest: 50
-  }
-
-  SELL_IN = {
-      zero_term: 0,
-      twice_growth: 10,
-      thrice_growth: 5
-  }
-
-  STEP = 1
 
   def initialize(items)
     @items = items
@@ -18,56 +6,25 @@ class GildedRose
 
   def update_quality()
     @items.each do |item|
-      item_type = map_item(item)
-      unless item_type == :legendary
-        if item_type == :cheese
-          if item.quality < QUALITY[:highest]
-            item.quality += STEP
-            if item.sell_in <= SELL_IN[:zero_term]
-              item.quality += STEP
-            end
-          end
-        elsif item_type == :ticket
-          item.quality += STEP
-          if item.sell_in <= SELL_IN[:twice_growth]
-            if item.quality < QUALITY[:highest]
-              item.quality += STEP
-            end
-          end
-          if item.sell_in <= SELL_IN[:thrice_growth]
-            if item.quality < QUALITY[:highest]
-              item.quality += STEP
-            end
-          end
-          if item.sell_in <= SELL_IN[:zero_term]
-            item.quality = QUALITY[:undegradable]
-          end
-        elsif item.quality > QUALITY[:undegradable] && item.quality < QUALITY[:highest]
-          decrease_amount = item_type == :magic ? STEP+STEP : STEP
-          item.quality -= decrease_amount
-          if item.sell_in < SELL_IN[:zero_term]
-            if item.quality > QUALITY[:undegradable]
-              item.quality -= decrease_amount
-            end
-          end
-        end
-
-        item.sell_in -= STEP
+      item_mapper = check(item)
+      unless item_mapper == ItemsMapper::Legendary
+        ItemModifier.modify(item_mapper, item)
+        item.sell_in -= ItemsMapper::STEP
       end
     end
   end
 
-  def map_item(item)
+  def check(item)
     if item.name == 'Sulfuras, Hand of Ragnaros'
-      :legendary
+      ItemsMapper::Legendary
     elsif item.name == 'Aged Brie'
-      :cheese
+      ItemsMapper::Cheese
     elsif item.name == 'Backstage passes to a TAFKAL80ETC concert'
-      :ticket
+      ItemsMapper::Ticket
     elsif item.name == 'Conjured Mana Cake'
-      :magic
+      ItemsMapper::Magic
     else
-      :common_item
+      ItemsMapper::Common
     end
   end
 
@@ -85,4 +42,84 @@ class Item
   def to_s()
     "#{@name}, #{@sell_in}, #{@quality}"
   end
+end
+
+class ItemModifier
+
+  def self.modify(mapper, item)
+    mapper.update(item)
+  end
+
+end
+
+module ItemsMapper
+
+  QUALITY = {
+      undegradable: 0,
+      highest: 50
+  }
+
+  SELL_IN = {
+      zero_term: 0,
+      twice_growth: 10,
+      thrice_growth: 5
+  }
+
+  STEP = 1
+
+  class Legendary
+    def self.update(item)
+
+    end
+  end
+
+  class Cheese
+    def self.update(item)
+      if item.quality < ItemsMapper::QUALITY[:highest]
+        item.quality += ItemsMapper::STEP
+        if item.sell_in <= ItemsMapper::SELL_IN[:zero_term]
+          item.quality += ItemsMapper::STEP
+        end
+      end
+    end
+  end
+
+  class Ticket
+    def self.update(item)
+      item.quality += ItemsMapper::STEP
+      if item.sell_in <= ItemsMapper::SELL_IN[:twice_growth]
+        if item.quality < ItemsMapper::QUALITY[:highest]
+          item.quality += ItemsMapper::STEP
+        end
+      end
+      if item.sell_in <= ItemsMapper::SELL_IN[:thrice_growth]
+        if item.quality < ItemsMapper::QUALITY[:highest]
+          item.quality += ItemsMapper::STEP
+        end
+      end
+      if item.sell_in <= ItemsMapper::SELL_IN[:zero_term]
+        item.quality = ItemsMapper::QUALITY[:undegradable]
+      end
+    end
+  end
+
+  class Magic
+    def self.update(item)
+      2.times { Common.update(item) }
+    end
+  end
+
+  class Common
+    def self.update(item)
+      if item.quality > ItemsMapper::QUALITY[:undegradable] && item.quality < ItemsMapper::QUALITY[:highest]
+        item.quality -= ItemsMapper::STEP
+        if item.sell_in < ItemsMapper::SELL_IN[:zero_term]
+          if item.quality > ItemsMapper::QUALITY[:undegradable]
+            item.quality -= ItemsMapper::STEP
+          end
+        end
+      end
+    end
+  end
+
 end
