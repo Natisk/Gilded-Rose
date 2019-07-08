@@ -7,10 +7,8 @@ class GildedRose
   def update_quality()
     @items.each do |item|
       item_mapper = check(item)
-      unless item_mapper == ItemsMapper::Legendary
-        ItemModifier.modify(item_mapper, item)
-        item.sell_in -= ItemsMapper::STEP
-      end
+      ItemModifier.modify(item_mapper, item)
+      item.sell_in -= ItemsMapper::STEP
     end
   end
 
@@ -23,6 +21,8 @@ class GildedRose
       ItemsMapper::Ticket
     elsif item.name == 'Conjured Mana Cake'
       ItemsMapper::Magic
+    elsif item.name == 'Conjured Fish'
+      ItemsMapper::MagicFish
     else
       ItemsMapper::Common
     end
@@ -67,6 +67,8 @@ module ItemsMapper
 
   STEP = 1
 
+  STEP_HIGH = 5
+
   class Legendary
     def self.update(item)
 
@@ -106,6 +108,16 @@ module ItemsMapper
   class Magic
     def self.update(item)
       2.times { Common.update(item) }
+    end
+  end
+
+  class MagicFish
+    def self.update(item)
+      if item.sell_in <= ItemsMapper::SELL_IN[:thrice_growth]
+        item.quality -= ItemsMapper::STEP_HIGH
+      else
+        item.quality -= ItemsMapper::STEP
+      end
     end
   end
 

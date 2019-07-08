@@ -112,5 +112,19 @@ describe GildedRose do
       expect(items[0].quality).to eq 36
       expect(items[1].quality).to eq 8
     end
+
+    it 'decreases quality of Conjured Fish by 5 after sellin is lower than 5' do
+      items = [Item.new('Conjured Mana Cake', -5, 40),
+               Item.new('Conjured Fish', 5, 10)]
+      GildedRose.new(items).update_quality()
+      expect(items[0].quality).to eq 36
+      expect(items[1].quality).to eq 5
+    end
+
+    it 'decreases quality of Conjured Fish by 1 after sellin is higher than 5' do
+      items = [Item.new('Conjured Fish',10, 15)]
+      GildedRose.new(items).update_quality()
+      expect(items[0].quality).to eq 14
+    end
   end
 end
